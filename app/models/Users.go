@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"IdeaIntuition/global"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -9,6 +13,7 @@ type User struct {
 	Email     string         `gorm:"size:100;unique;not null" json:"email"`
 	Password  string         `gorm:"size:255;not null" json:"-"`
 	Interests []UserInterest `json:"interests"`
+	Active    bool           `gorm:"default:true" json:"active"`
 }
 
 type Interest struct {
@@ -22,4 +27,17 @@ type UserInterest struct {
 	Score      float64  `gorm:"type:decimal(5,2);not null" json:"score"`
 	User       User     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	Interest   Interest `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+}
+
+func GetUserByEmail(email string) (User, error) {
+	var user User
+	err := global.DB.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+func (user *User) ComparePassword(password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 }

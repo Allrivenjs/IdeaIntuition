@@ -9,9 +9,7 @@ import (
 	"os"
 )
 
-var DB *gorm.DB
-
-func InitDB() {
+func InitDB() *gorm.DB {
 	// Configura tus credenciales de la base de datos aquí
 	logrus.Infof("loading database config")
 	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -22,17 +20,18 @@ func InitDB() {
 	)
 	logrus.Infof("%v", dsn)
 	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	DB, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		panic("failed to connect database")
 		logrus.Errorf("failed to connect database: %v", err)
 	}
 	//ejecuta las migraciones
-	migrate()
+	migrate(DB)
+	return DB
 }
 
-func migrate() {
+func migrate(DB *gorm.DB) {
 	// Reemplaza `User`, `Interest` y `UserInterest` con las estructuras de tus modelos
 	logrus.Infof("migrate database")
 	err := DB.AutoMigrate(&m.User{}, &m.Interest{}, &m.UserInterest{})
