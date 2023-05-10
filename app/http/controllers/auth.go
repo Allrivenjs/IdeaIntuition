@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"IdeaIntuition/app/models"
-	"IdeaIntuition/global"
 	"IdeaIntuition/services"
 	"errors"
 	"github.com/asaskevich/govalidator"
@@ -90,7 +89,7 @@ func Register(c *fiber.Ctx) error {
 		Password: string(password),
 	}
 	//save user
-	if err := global.DB.Create(&user).Error; err != nil {
+	if err = user.Create(); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Cannot create user",
 		})
