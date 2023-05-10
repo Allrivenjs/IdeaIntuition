@@ -1,6 +1,7 @@
 package models
 
 import (
+	"IdeaIntuition/global"
 	"IdeaIntuition/services"
 	"gorm.io/gorm"
 )
@@ -11,6 +12,7 @@ type Room struct {
 	Description string        `gorm:"size:255;not null" json:"description"`
 	User        User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	ChatHistory []ChatHistory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Reason      Reason        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }
 
 type ChatHistory struct {
@@ -24,6 +26,19 @@ type Reason struct {
 	services.PromptListProjectStruct
 }
 
-func (r *Room) create() {
+func (r *Room) Create() {
+	if err := global.DB.Create(&r).Error; err != nil {
+		panic(err)
+	}
+}
 
+func (r *Room) GetChatHistoryByUser(u User) []ChatHistory {
+	var chatHistory []ChatHistory
+	global.DB.Model(&r).
+		Where("user_id = ?", u.ID).
+		Preload("User").
+		Preload("ChatHistory.User").
+		Preload("Reason").
+		Find(&chatHistory)
+	return chatHistory
 }

@@ -112,12 +112,12 @@ func Restricted(c *fiber.Ctx) error {
 	})
 }
 
-func validateUserParams(c *fiber.Ctx, register ...bool) (map[string]string, error) {
+func validateUserParams(c *fiber.Ctx, register ...bool) (ErrorMap, error) {
 	//get params of body request
 	email := c.FormValue("email")
 	password := c.FormValue("password")
 
-	e := make(map[string]string)
+	e := make(ErrorMap)
 
 	// Valida el correo electrónico
 	if !govalidator.IsEmail(email) {

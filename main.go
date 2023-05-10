@@ -3,6 +3,7 @@ package main
 import (
 	c "IdeaIntuition/config"
 	"IdeaIntuition/global"
+	"IdeaIntuition/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -18,7 +19,7 @@ func main() {
 	//// Inicializa la base de datos
 	global.Load(c.InitDB())
 	app := fiber.New()
-	c.SetupRoutes(app)
+	routes.SetupRoutes(app)
 	//app.Use(middlewares.RouteLogger(app))
 	logrus.Fatal(app.Listen(":3000"))
 

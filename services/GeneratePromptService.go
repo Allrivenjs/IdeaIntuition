@@ -7,11 +7,11 @@ import (
 )
 
 type PromptListProjectStruct struct {
-	TypeProject  string `gorm:"not null" json:"type_project"`
-	Approach     string `gorm:"not null" json:"approach"`
-	Requirements string `gorm:"not null" json:"requirements"`
-	Course       string `gorm:"not null" json:"course"`
-	Technology   string `gorm:"not null" json:"technology"`
+	TypeProject  string `gorm:"not null" json:"type_project" valid:"required"`
+	Approach     string `gorm:"not null" json:"approach" valid:"required"`
+	Requirements string `gorm:"not null" json:"requirements" valid:"required"`
+	Course       string `gorm:"not null" json:"course" valid:"required"`
+	Technology   string `gorm:"not null" json:"technology" valid:"required"`
 }
 
 func (p *PromptListProjectStruct) generateListProject() string {
