@@ -1,28 +1,29 @@
-package User
+package models
 
 import (
 	"IdeaIntuition/global"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	FirstName string         `gorm:"size:100;not null" json:"first_name"`
-	LastName  string         `gorm:"size:100;not null" json:"last_name"`
-	Email     string         `gorm:"size:100;unique;not null" json:"email"`
-	Password  string         `gorm:"size:255;not null" json:"-"`
-	Interests []UserInterest `json:"interests"`
-	Active    bool           `gorm:"default:true" json:"active"`
+	Model
+	FirstName   string         `gorm:"size:100;not null" json:"first_name"`
+	LastName    string         `gorm:"size:100;not null" json:"last_name"`
+	Email       string         `gorm:"size:100;unique;not null" json:"email"`
+	Password    string         `gorm:"size:255;not null" json:"-"`
+	Interests   []UserInterest `json:"interests"`
+	Active      bool           `gorm:"default:true" json:"active"`
+	ChatHistory []ChatHistory  `json:"chat_history"`
+	Rooms       []Room         `gorm:"foreignKey:UserId" json:"rooms"`
 }
 
 type Interest struct {
-	gorm.Model
+	Model
 	Name string `gorm:"size:100;not null" json:"name"`
 }
 
 type UserInterest struct {
-	gorm.Model
+	Model
 	UserID     uint     `gorm:"primaryKey" json:"user_id"`
 	InterestID uint     `gorm:"primaryKey" json:"interest_id"`
 	Score      float64  `gorm:"type:decimal(5,2);not null" json:"score"`

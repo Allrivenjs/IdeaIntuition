@@ -25,6 +25,7 @@ func setupPublicRoutesApi(app fiber.Router) {
 	app.Post("/login", controllers.Login)
 	app.Get("/restricted", controllers.Restricted)
 	app.Post("/register", controllers.Register)
+	app.Post("/create-project", controllers.CreateProject)
 	// Otras rutas públicas
 }
 

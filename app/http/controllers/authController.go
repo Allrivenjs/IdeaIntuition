@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"IdeaIntuition/app/models/User"
+	"IdeaIntuition/app/models"
 	"IdeaIntuition/services"
 	"errors"
 	"github.com/asaskevich/govalidator"
@@ -35,7 +35,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 	//search user in db
-	user, err := User.GetUserByEmail(body.Email)
+	user, err := models.GetUserByEmail(body.Email)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -77,14 +77,14 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 	//hash password
-	password, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+	password, err := bcrypt.GenerateFromPassword([]byte(body.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Cannot hash password",
 		})
 	}
 	//create user
-	user := User.User{
+	user := models.User{
 		Email:    body.Email,
 		Password: string(password),
 	}

@@ -1,7 +1,7 @@
 package config
 
 import (
-	m "IdeaIntuition/app/models/User"
+	CH "IdeaIntuition/app/models"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
@@ -27,14 +27,21 @@ func InitDB() *gorm.DB {
 		logrus.Errorf("failed to connect database: %v", err)
 	}
 	//ejecuta las migraciones
+	logrus.Infof("migrate database")
 	migrate(DB)
+	logrus.Infof("seeder on database")
+	seedUsers(DB)
 	return DB
 }
 
 func migrate(DB *gorm.DB) {
-	// Reemplaza `User`, `Interest` y `UserInterest` con las estructuras de tus modelos
-	logrus.Infof("migrate database")
-	err := DB.AutoMigrate(&m.User{}, &m.Interest{}, &m.UserInterest{})
+	// Reemplaza `U`, `Interest` y `UserInterest` con las estructuras de tus modelos
+	err := DB.AutoMigrate(&CH.User{},
+		&CH.Interest{},
+		&CH.UserInterest{},
+		&CH.Reason{},
+		&CH.ChatHistory{},
+		&CH.Room{})
 	if err != nil {
 		panic("failed to migrate database")
 		logrus.Errorf("failed to migrate database: %v", err)
