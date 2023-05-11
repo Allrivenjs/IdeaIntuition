@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"IdeaIntuition/app/models"
+	"IdeaIntuition/app/models/User"
 	"IdeaIntuition/services"
 	"errors"
 	"github.com/asaskevich/govalidator"
@@ -35,7 +35,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 	//search user in db
-	user, err := models.GetUserByEmail(body.Email)
+	user, err := User.GetUserByEmail(body.Email)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -84,7 +84,7 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 	//create user
-	user := models.User{
+	user := User.User{
 		Email:    body.Email,
 		Password: string(password),
 	}

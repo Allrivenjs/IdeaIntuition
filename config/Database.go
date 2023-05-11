@@ -1,7 +1,7 @@
 package config
 
 import (
-	m "IdeaIntuition/app/models"
+	m "IdeaIntuition/app/models/User"
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"

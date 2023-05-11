@@ -1,6 +1,7 @@
-package models
+package ChatHistory
 
 import (
+	User "IdeaIntuition/app/models/User"
 	"IdeaIntuition/global"
 	"IdeaIntuition/services"
 	"gorm.io/gorm"
@@ -9,16 +10,16 @@ import (
 type Room struct {
 	gorm.Model
 	Name        string        `gorm:"size:100;not null" json:"name"`
-	Description string        `gorm:"size:255;not null" json:"description"`
-	User        User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Description string        `gorm:"size:255" json:"description"`
+	User        User.User     `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	ChatHistory []ChatHistory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	Reason      Reason        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }
 
 type ChatHistory struct {
 	gorm.Model
-	Message string `json:"message"`
-	User    User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Message string    `json:"message"`
+	User    User.User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }
 
 type Reason struct {
@@ -32,7 +33,7 @@ func (r *Room) Create() {
 	}
 }
 
-func (r *Room) GetChatHistoryByUser(u User) []ChatHistory {
+func (r *Room) GetChatHistoryByUser(u User.User) []ChatHistory {
 	var chatHistory []ChatHistory
 	global.DB.Model(&r).
 		Where("user_id = ?", u.ID).

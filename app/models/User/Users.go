@@ -1,4 +1,4 @@
-package models
+package User
 
 import (
 	"IdeaIntuition/global"
@@ -33,6 +33,15 @@ type UserInterest struct {
 func GetUserByEmail(email string) (User, error) {
 	var user User
 	err := global.DB.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
+}
+
+func Find(id int) (User, error) {
+	var user User
+	err := global.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return User{}, err
 	}
