@@ -4,29 +4,40 @@ import (
 	"IdeaIntuition/global"
 	"IdeaIntuition/services"
 	"errors"
-	"fmt"
+	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type Room struct {
-	Model
+	gorm.Model
 	Name        string        `gorm:"size:100;not null" json:"name"`
 	Description string        `gorm:"size:255" json:"description"`
 	UserId      uint          `gorm:"not null" json:"-"`
 	ChatHistory []ChatHistory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:RoomId" json:"-"`
 	ReasonId    uint          `gorm:"not null" json:"-"`
 	Reason      Reason        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ReasonId;references:ID" json:"-"`
+	User        User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserId;references:ID" json:"user"`
 }
 
 type ChatHistory struct {
-	Model
+	gorm.Model
 	Message string `json:"message"`
 	UserId  uint   `gorm:"not null" json:"-"`
 	RoomId  uint   `gorm:"not null" json:"-"`
 }
 
 type Reason struct {
-	Model
+	gorm.Model
 	services.PromptListProjectStruct
+}
+
+func (r *Room) loadRelationsModels(relation string) error {
+	// Resto de la implementación
+	if err := global.DB.Model(&r).Preload(relation).Error; err != nil {
+		logrus.Errorf("failed to load relations: %v", err)
+		return err
+	}
+	return nil
 }
 
 func (r *Room) Create() {
@@ -49,9 +60,18 @@ func (r *Room) GetChatHistoryByUser(u User) []ChatHistory {
 func (r *Room) Load(param interface{}) error {
 	switch p := param.(type) {
 	case string:
-		fmt.Printf("El parámetro es un string: %s\n", p)
+		err := r.loadRelationsModels(p)
+		if err != nil {
+			return err
+		}
 	case []string:
-		fmt.Printf("El parámetro es un array: %v\n", p)
+		for _, relation := range p {
+			logrus.Infof("loading relations: %v", relation)
+			err := r.loadRelationsModels(relation)
+			if err != nil {
+				return err
+			}
+		}
 	default:
 		return errors.New("param is not a string or an array")
 	}

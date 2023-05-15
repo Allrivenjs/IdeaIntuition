@@ -39,8 +39,15 @@ func CreateProject(c *fiber.Ctx) error {
 	}
 	room.Create()
 	//load relations of room
-	room.Load("User")
-	room.Load([]string{"User", "Messages"})
+	err = room.Load("User")
+	if err != nil {
+		return err
+	}
+	err = room.Load([]string{"Reason"})
+	if err != nil {
+		return err
+	}
+
 	return c.JSON(fiber.Map{
 		"room": room,
 		"msg":  "Room created successfully",
