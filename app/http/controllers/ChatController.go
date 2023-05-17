@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"IdeaIntuition/app/models"
+	"IdeaIntuition/services"
 	"github.com/asaskevich/govalidator"
 	"github.com/gofiber/fiber/v2"
+	"github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
 )
 
@@ -61,4 +63,24 @@ func validateProjectParams(body createProjectRequest) error {
 		return err
 	}
 	return nil
+}
+
+func GetMessages(c *fiber.Ctx) error {
+	p := services.PromptListProjectStruct{
+		TypeProject:  "Creacion de plataforma para el desarrollo de estudios de mercado en programacion",
+		Approach:     "temas de educacion",
+		Requirements: "tesis",
+		Course:       "ingeniera en sistemas.",
+		Technology:   "web",
+	}
+	project, err := p.GetListOfPossibleProject([]openai.ChatCompletionMessage{})
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err,
+		})
+	}
+	return c.JSON(fiber.Map{
+		"message": project,
+		"msg":     "Response successfully",
+	})
 }

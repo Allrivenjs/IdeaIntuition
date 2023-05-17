@@ -22,6 +22,8 @@ func setupPublicRoutesApi(app fiber.Router) {
 		return nil
 	})
 
+	app.Get("/messages", controllers.GetMessages)
+
 	app.Post("/login", controllers.Login)
 	app.Get("/restricted", controllers.Restricted)
 	app.Post("/register", controllers.Register)

@@ -15,7 +15,7 @@ type PromptListProjectStruct struct {
 }
 
 func (p *PromptListProjectStruct) generateListProject() string {
-	return fmt.Sprintf(`Realiza una lista de temas de investigación para una %s que se adapten a estos temas para su 
+	return fmt.Sprintf(`Realiza una lista de 10 items sobre temas de investigación para una %s que se adapten a estos temas para su 
 		desarrollo: 
 			tecnología: %s, 
 			enfoque: %s, 
@@ -34,7 +34,7 @@ func (p *PromptListProjectStruct) GetListOfPossibleProject(beforeMessage []opena
 	ms, err := SendMessage(append(beforeMessage, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleAssistant,
 		Content: prompt,
-	}), 30)
+	}), 500)
 	if err != nil {
 		log.Fatal(err)
 		return openai.ChatCompletionResponse{}, err
