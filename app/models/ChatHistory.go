@@ -12,18 +12,18 @@ type Room struct {
 	gorm.Model
 	Name        string        `gorm:"size:100;not null" json:"name"`
 	Description string        `gorm:"size:255" json:"description"`
-	UserId      uint          `gorm:"not null" json:"-"`
-	ChatHistory []ChatHistory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:RoomId" json:"-"`
-	ReasonId    uint          `gorm:"not null" json:"-"`
-	Reason      Reason        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ReasonId;references:ID" json:"-"`
+	UserId      uint          `gorm:"not null" json:"user_id"`
+	ChatHistory []ChatHistory `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:RoomId" json:"chat_history"`
+	ReasonId    uint          `gorm:"not null" json:"reason_id"`
+	Reason      Reason        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:ReasonId;references:ID" json:"reason"`
 	User        User          `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:UserId;references:ID" json:"user"`
 }
 
 type ChatHistory struct {
 	gorm.Model
 	Message string `json:"message"`
-	UserId  uint   `gorm:"not null" json:"-"`
-	RoomId  uint   `gorm:"not null" json:"-"`
+	UserId  uint   `gorm:"not null" json:"user_id"`
+	RoomId  uint   `gorm:"not null" json:"room_id"`
 }
 
 type Reason struct {
@@ -31,9 +31,15 @@ type Reason struct {
 	services.PromptListProjectStruct
 }
 
+func (r *Reason) Create() {
+	if err := global.DB.Create(&r).Error; err != nil {
+		panic(err)
+	}
+}
+
 func (r *Room) loadRelationsModels(relation string) error {
 	// Resto de la implementación
-	if err := global.DB.Model(&r).Preload(relation).Error; err != nil {
+	if err := global.DB.Model(&r).Preload(relation).Find(&r).Error; err != nil {
 		logrus.Errorf("failed to load relations: %v", err)
 		return err
 	}
@@ -76,4 +82,10 @@ func (r *Room) Load(param interface{}) error {
 		return errors.New("param is not a string or an array")
 	}
 	return nil
+}
+
+func GetRoom(id uint) (Room, error) {
+	var room Room
+	err := global.DB.Find(&room, id).Error
+	return room, err
 }

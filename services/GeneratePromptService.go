@@ -12,6 +12,7 @@ type PromptListProjectStruct struct {
 	Requirements string `gorm:"not null" json:"requirements" valid:"required"`
 	Course       string `gorm:"not null" json:"course" valid:"required"`
 	Technology   string `gorm:"not null" json:"technology" valid:"required"`
+	Context      string `gorm:"not null" json:"context" valid:"required"`
 }
 
 func (p *PromptListProjectStruct) generateListProject() string {
@@ -20,12 +21,14 @@ func (p *PromptListProjectStruct) generateListProject() string {
 			tecnología: %s, 
 			enfoque: %s, 
 			exigencias: %s, 
-			curso: %s`,
+			curso: %s
+		para lograr esto: %s`,
 		p.TypeProject,
 		p.Technology,
 		p.Approach,
 		p.Requirements,
 		p.Course,
+		p.Context,
 	)
 }
 

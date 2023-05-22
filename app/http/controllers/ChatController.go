@@ -28,28 +28,33 @@ func CreateProject(c *fiber.Ctx) error {
 	}
 
 	u, err := models.Find(int(body.UserId))
+	//fmt.Println(u, u.ID)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "User not found",
 		})
 	}
+
+	reason := models.Reason{
+		PromptListProjectStruct: services.PromptListProjectStruct{
+			TypeProject:  body.TypeProject,
+			Approach:     body.Approach,
+			Requirements: body.Requirements,
+			Course:       body.Course,
+			Technology:   body.Technology,
+			Context:      body.Context,
+		},
+	}
+	reason.Create()
 	room := models.Room{
 		Name:        `Project:` + body.TypeProject,
 		Description: "",
 		UserId:      u.ID,
-		Reason:      body.Reason,
+		Reason:      reason,
 	}
 	room.Create()
-	//load relations of room
-	err = room.Load("User")
-	if err != nil {
-		return err
-	}
-	err = room.Load([]string{"Reason"})
-	if err != nil {
-		return err
-	}
-
+	room.User = u
+	room.Reason = reason
 	return c.JSON(fiber.Map{
 		"room": room,
 		"msg":  "Room created successfully",
@@ -65,22 +70,57 @@ func validateProjectParams(body createProjectRequest) error {
 	return nil
 }
 
-func GetMessages(c *fiber.Ctx) error {
-	p := services.PromptListProjectStruct{
-		TypeProject:  "Creacion de plataforma para el desarrollo de estudios de mercado en programacion",
-		Approach:     "temas de educacion",
-		Requirements: "tesis",
-		Course:       "ingeniera en sistemas.",
-		Technology:   "web",
+type createMessage struct {
+	RoomID uint `json:"room_id" valid:"required"`
+}
+
+func validateMessagesBody(body createMessage) error {
+	v, err := govalidator.ValidateStruct(body)
+	logrus.Printf("Validation error: %v, error: %v", v, err)
+	if err != nil {
+		return err
 	}
+	return nil
+}
+
+func Messages(c *fiber.Ctx) error {
+
+	var body createMessage
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+	if err := validateMessagesBody(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
+
+	room, err := models.GetRoom(body.RoomID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Room not found",
+		})
+	}
+	err = room.Load([]string{"User", "Reason"})
+	if err != nil {
+		return err
+	}
+
+	p := room.Reason.PromptListProjectStruct
 	project, err := p.GetListOfPossibleProject([]openai.ChatCompletionMessage{})
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err,
 		})
 	}
+
 	return c.JSON(fiber.Map{
-		"message": project,
-		"msg":     "Response successfully",
+		"message":          project.Choices[0].Message.Content,
+		"token_completion": project.Usage.CompletionTokens,
+		"token_total":      project.Usage.TotalTokens,
+		"token_prompt":     project.Usage.PromptTokens,
+		"msg":              "Response successfully",
 	})
 }

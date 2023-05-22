@@ -22,7 +22,7 @@ func setupPublicRoutesApi(app fiber.Router) {
 		return nil
 	})
 
-	app.Get("/messages", controllers.GetMessages)
+	app.Post("/messages", controllers.Messages)
 
 	app.Post("/login", controllers.Login)
 	app.Get("/restricted", controllers.Restricted)
