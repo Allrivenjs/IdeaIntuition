@@ -117,7 +117,7 @@ func Messages(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"message":          project.Choices[0].Message.Content,
+		"message":          services.ConfigureMessage(project.Choices[0].Message.Content),
 		"token_completion": project.Usage.CompletionTokens,
 		"token_total":      project.Usage.TotalTokens,
 		"token_prompt":     project.Usage.PromptTokens,
