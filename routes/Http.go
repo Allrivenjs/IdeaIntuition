@@ -8,12 +8,6 @@ import (
 
 func SetupRoutes(app *fiber.App) {
 	//TODO: Agregar rutas aquí
-	api := app.Group("/api")
-	setupPublicRoutesApi(api)
-	setupProtectedRoutesApi(api)
-}
-
-func setupPublicRoutesApi(app fiber.Router) {
 	app.Get("/", func(c *fiber.Ctx) error {
 		err := c.SendString("Hello, World!")
 		if err != nil {
@@ -21,9 +15,13 @@ func setupPublicRoutesApi(app fiber.Router) {
 		}
 		return nil
 	})
+	api := app.Group("/api")
+	setupPublicRoutesApi(api)
+	setupProtectedRoutesApi(api)
+}
 
+func setupPublicRoutesApi(app fiber.Router) {
 	app.Post("/messages", controllers.Messages)
-
 	app.Post("/login", controllers.Login)
 	app.Get("/restricted", controllers.Restricted)
 	app.Post("/register", controllers.Register)
