@@ -6,6 +6,7 @@ import (
 	"IdeaIntuition/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
+	"os"
 )
 
 func main() {
@@ -19,6 +20,9 @@ func main() {
 	app := fiber.New()
 	routes.SetupRoutes(app)
 	//app.Use(middlewares.RouteLogger(app))
-	logrus.Fatal(app.Listen(":3000"))
-
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	logrus.Fatal(app.Listen("0.0.0.0:" + port))
 }
