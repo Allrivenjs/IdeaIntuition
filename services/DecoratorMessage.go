@@ -2,7 +2,7 @@ package services
 
 import "strings"
 
-func ConfigureMessage(message string) interface{} {
+func ConfigureMessage(message string) []string {
 	// Dividir el mensaje en líneas
 	lines := strings.Split(message, "\n")
 

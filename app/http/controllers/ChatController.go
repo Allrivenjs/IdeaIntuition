@@ -115,9 +115,38 @@ func Messages(c *fiber.Ctx) error {
 			"error": err,
 		})
 	}
+	content := services.ConfigureMessage(project.Choices[0].Message.Content)
+
+	// Crear un canal para recibir los modelos creados
+	modelsCreated := make(chan models.Idea)
+
+	go func() {
+		for _, c := range content {
+			idea := models.Idea{
+				Content:  c,
+				RoomId:   room.ID,
+				Selected: false,
+			}
+			idea.Create()
+
+			// Enviar el modelo creado al canal
+			modelsCreated <- idea
+		}
+
+		// Cerrar el canal después de que se hayan enviado todos los modelos
+		close(modelsCreated)
+	}()
+
+	// Crear un slice para almacenar los modelos creados
+	var createdModels []models.Idea
+
+	// Recorrer el canal para recibir los modelos y agregarlos al slice
+	for model := range modelsCreated {
+		createdModels = append(createdModels, model)
+	}
 
 	return c.JSON(fiber.Map{
-		"message":          services.ConfigureMessage(project.Choices[0].Message.Content),
+		"message":          createdModels,
 		"token_completion": project.Usage.CompletionTokens,
 		"token_total":      project.Usage.TotalTokens,
 		"token_prompt":     project.Usage.PromptTokens,

@@ -42,7 +42,9 @@ func migrate(DB *gorm.DB) {
 		&CH.UserInterest{},
 		&CH.Reason{},
 		&CH.ChatHistory{},
-		&CH.Room{})
+		&CH.Room{},
+		&CH.Idea{},
+		&CH.RankedIdea{})
 	if err != nil {
 		panic("failed to migrate database")
 		logrus.Errorf("failed to migrate database: %v", err)
