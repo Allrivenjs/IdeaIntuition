@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/sashabaranov/go-openai"
 	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 type createProjectRequest struct {
@@ -75,6 +76,14 @@ type createMessage struct {
 }
 
 func validateMessagesBody(body createMessage) error {
+	v, err := govalidator.ValidateStruct(body)
+	logrus.Printf("Validation error: %v, error: %v", v, err)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func validateRankBody(body Rank) error {
 	v, err := govalidator.ValidateStruct(body)
 	logrus.Printf("Validation error: %v, error: %v", v, err)
 	if err != nil {
@@ -151,5 +160,81 @@ func Messages(c *fiber.Ctx) error {
 		"token_total":      project.Usage.TotalTokens,
 		"token_prompt":     project.Usage.PromptTokens,
 		"msg":              "Response successfully",
+	})
+}
+
+func SelectIdea(c *fiber.Ctx) error {
+	ideaId := c.Params("id")
+	idea := models.Idea{}
+	idea.ID, _ = ConvertStringToUint(ideaId)
+	err := idea.GetIdeaById(idea.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Idea not found",
+		})
+	}
+	idea.Selected = true
+	idea.Update()
+	return c.JSON(fiber.Map{
+		"idea": idea,
+		"msg":  "Idea selected successfully",
+	})
+}
+func ConvertStringToUint(str string) (uint, error) {
+	val, err := strconv.ParseUint(str, 10, 0)
+	if err != nil {
+		return 0, err
+	}
+	return uint(val), nil
+}
+
+func GetIdeas(c *fiber.Ctx) error {
+	roomId, _ := ConvertStringToUint(c.Params("id"))
+
+	ideas, err := models.GetIdeas(roomId)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Ideas not found",
+		})
+	}
+	return c.JSON(fiber.Map{
+		"ideas": ideas,
+		"msg":   "Ideas successfully",
+	})
+}
+
+type Rank struct {
+	Id   uint `json:"id" valid:"required"`
+	Rank uint `json:"rank" valid:"required"`
+}
+
+func RankIdea(c *fiber.Ctx) error {
+	var body Rank
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+	if err := validateRankBody(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"errors": err,
+		})
+	}
+	idea := models.Idea{}
+	idea.ID = body.Id
+	err := idea.GetIdeaById(idea.ID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Idea not found",
+		})
+	}
+	rank := models.RankedIdea{
+		IdeaID: idea.ID,
+		Rank:   body.Rank,
+	}
+	rank.Create()
+	return c.JSON(fiber.Map{
+		"msg": "Rank successfully",
 	})
 }

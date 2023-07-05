@@ -8,7 +8,7 @@ import (
 type RankedIdea struct {
 	gorm.Model
 	IdeaID uint `gorm:"not null" json:"idea_id"`
-	Rank   int  `gorm:"not null" json:"rank"`
+	Rank   uint `gorm:"not null" json:"rank"`
 	Idea   Idea `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;foreignKey:IdeaID;references:ID" json:"idea"`
 }
 

@@ -28,6 +28,9 @@ func setupPublicRoutesApi(app fiber.Router) {
 	app.Get("/restricted", controllers.Restricted)
 	app.Post("/register", controllers.Register)
 	app.Post("/create-project", controllers.CreateProject)
+	app.Get("/select-idea/:id", controllers.SelectIdea)
+	app.Get("/get-ideas/:id", controllers.GetIdeas)
+	app.Post("/rank-idea", controllers.RankIdea)
 	// Otras rutas públicas
 }
 

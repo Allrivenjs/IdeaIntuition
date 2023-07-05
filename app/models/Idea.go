@@ -25,3 +25,17 @@ func (i *Idea) GetIdeaById(id uint) error {
 	}
 	return nil
 }
+
+func (i *Idea) Update() {
+	if err := global.DB.Save(&i).Error; err != nil {
+		panic(err)
+	}
+}
+
+func GetIdeas(roomID uint) ([]Idea, error) {
+	var ideas []Idea
+	if err := global.DB.Where("room_id = ?", roomID).Find(&ideas).Error; err != nil {
+		return nil, err
+	}
+	return ideas, nil
+}
