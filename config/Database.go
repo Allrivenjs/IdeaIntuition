@@ -12,7 +12,7 @@ import (
 func InitDB() *gorm.DB {
 	// Configura tus credenciales de la base de datos aquí
 	logrus.Infof("loading database config")
-	dsn := fmt.Sprintf("%s:%s@tcp(localhost:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(containers-us-west-143.railway.app:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_PORT"),

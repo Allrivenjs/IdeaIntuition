@@ -6,8 +6,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
       MYSQL_DATABASE: ideal-intuition
-      MYSQL_USER: ideal-intuition
-      MYSQL_PASSWORD: ideal-intuition
     ports:
       - "3306:3306"
     volumes:
