@@ -13,11 +13,11 @@ func InitDB() *gorm.DB {
 	// Configura tus credenciales de la base de datos aquí
 	logrus.Infof("loading database config")
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
+		os.Getenv("MYSQLUSER"),
+		os.Getenv("MYSQLPASSWORD"),
+		os.Getenv("MYSQLHOST"),
+		os.Getenv("MYSQLPORT"),
+		os.Getenv("MYSQLDATABASE"),
 	)
 	logrus.Infof("%v", dsn)
 	var err error
